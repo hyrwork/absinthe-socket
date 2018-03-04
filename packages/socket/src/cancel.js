@@ -33,14 +33,20 @@ const notifierPushHandler: NotifierPushHandler<UnsubscribeResponse> = {
   onSucceed: removeNotifiers
 };
 
-const unsubscribe = (absintheSocket, notifier) =>
-  handlePush(
+const unsubscribe = (absintheSocket, _) => {
+  let notifier = null;
+  try {
+    notifier = absintheSocket.notifiers[0];
+  } catch (err) {
+    notifier = _;
+  }
+  return handlePush(
     absintheSocket.channel.push("unsubscribe", {
       subscriptionId: notifier.subscriptionId
     }),
     createPushHandler(notifierPushHandler, absintheSocket, notifier.request)
-  );
-
+  )
+}
 /**
  * Cancels a notifier sending a Cancel event to all its observers and
  * unsubscribing in case it holds a subscription request
